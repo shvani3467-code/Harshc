@@ -1,26 +1,42 @@
-#!/bin/bash
+name: Build Android APK with Briefcase
 
-echo -n "Enter your Server IP (e.g., 192.168.1.5): "
-read server_ip
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
 
-echo -n "Enter your Server Port (e.g., 4444): "
-read server_port
+jobs:
+  build:
+    runs-on: ubuntu-latest
 
-cp main.py main_backup.py
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v3
 
-echo "[+] Injecting IP ($server_ip) and Port ($server_port) into main.py..."
-sed -i "s/CONFIG_IP/$server_ip/g" main.py
-sed -i "s/CONFIG_PORT/$server_port/g" main.py
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
 
-if [ ! -f buildozer.spec ]; then
-    echo "[+] Initializing Buildozer..."
-    buildozer init
-    sed -i 's/#android.permissions =/android.permissions = INTERNET/' buildozer.spec
-fi
+    - name: Set up JDK 17
+      uses: actions/setup-java@v3
+      with:
+        distribution: 'temurin'
+        java-version: '17'
 
-echo "[+] Starting APK Build Process..."
-buildozer -v android debug
+    - name: Install Briefcase Dependencies
+      run: |
+        pip install --upgrade pip
+        pip install briefcase
 
-mv main_backup.py main.py
+    - name: Create & Build Android App
+      run: |
+        briefcase create android --non-interactive
+        briefcase build android --non-interactive
+        briefcase package android --non-interactive
 
-echo "[✓] Build Process Finished! Check the 'bin/' folder for your APK."
+    - name: Upload APK Artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: briefcase-android-apk
+        path: logs/**/*.apk # या android/gradle/app/build/outputs/apk/**/*.apk
