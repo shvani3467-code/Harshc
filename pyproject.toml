@@ -1,0 +1,24 @@
+[build-system]
+requires = ["briefcase"]
+
+[tool.briefcase]
+project_name = "My Client App"
+bundle = "com.example"
+version = "0.0.1"
+url = "https://example.com"
+license = "MIT"
+author = "Harsh"
+author_email = "harsh@example.com"
+
+[tool.briefcase.app.clientapp]
+formal_name = "Client App"
+description = "My Client Application"
+sources = [
+    "src/clientapp"
+]
+
+requires = [
+]
+
+[tool.briefcase.app.clientapp.android]
+build_style = "app"
