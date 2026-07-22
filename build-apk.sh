@@ -11,32 +11,41 @@ jobs:
 
     steps:
     - name: Checkout Code
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
     - name: Set up Python
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
         python-version: '3.10'
 
     - name: Set up JDK 17
-      uses: actions/setup-java@v3
+      uses: actions/setup-java@v4
       with:
         distribution: 'temurin'
         java-version: '17'
 
-    - name: Install Briefcase Dependencies
+    - name: Install System Dependencies
       run: |
-        pip install --upgrade pip
+        sudo apt-get update
+        sudo apt-get install -y git zip unzip
+
+    - name: Install Briefcase
+      run: |
+        python -m pip install --upgrade pip
         pip install briefcase
 
-    - name: Create & Build Android App
-      run: |
-        briefcase create android --non-interactive
-        briefcase build android --non-interactive
-        briefcase package android --non-interactive
+    - name: Create Briefcase Project
+      run: briefcase create android --non-interactive
+
+    - name: Build Android App
+      run: briefcase build android --non-interactive
+
+    - name: Package Android APK
+      run: briefcase package android --non-interactive
 
     - name: Upload APK Artifact
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: briefcase-android-apk
-        path: logs/**/*.apk # या android/gradle/app/build/outputs/apk/**/*.apk
+        path: android/app/build/outputs/apk/debug/*.apk
+        if-no-files-found: error
