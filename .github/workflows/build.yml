@@ -1,3 +1,5 @@
+
+
 name: Build Android APK with Briefcase
 
 on:
@@ -8,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
+      - name: Checkout Repository
         uses: actions/checkout@v4
 
       - name: Set up Python
@@ -16,26 +18,27 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Set up Java
+      - name: Set up Java / JDK
         uses: actions/setup-java@v4
         with:
-          distribution: 'zulu'
+          distribution: 'temurin'
           java-version: '17'
 
-      - name: Install dependencies
+      - name: Install Briefcase
         run: |
           python -m pip install --upgrade pip
-          pip install briefcase
+          pip install briefcase toga
 
-      - name: Build Android APK
+      - name: Create & Package Android App
         run: |
-          briefcase build android --no-input
-          briefcase package android --no-input
+          briefcase create android --non-interactive
+          briefcase build android --non-interactive
+          briefcase package android --non-interactive
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: app-android-apk
-          path: android/gradle/app/build/outputs/apk/**/*.apk
+          name: client-app-apk
+          path: |
+            **/build/outputs/apk/**/*.apk
           if-no-files-found: error
-
