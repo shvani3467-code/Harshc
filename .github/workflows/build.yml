@@ -37,10 +37,10 @@ jobs:
           briefcase build android --no-input
           briefcase package android --no-input
 
+
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
           name: app-android-apk
-          path: android/gradle/app/build/outputs/apk/**/*.apk
+          path: "**/*.apk"
           if-no-files-found: error
-
